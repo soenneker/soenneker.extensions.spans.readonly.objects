@@ -12,6 +12,7 @@ public static class ReadOnlySpanObjectExtension
     /// <summary>
     /// Converts a span of objects to an array of their corresponding types.
     /// </summary>
+    /// <returns>Converts a span of objects to an array of their corresponding types.</returns>
     [Pure]
     public static Type[] ToTypes(this ReadOnlySpan<object> objects)
     {
