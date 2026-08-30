@@ -4,7 +4,7 @@
 [![](https://img.shields.io/github/actions/workflow/status/soenneker/soenneker.extensions.spans.readonly.objects/codeql.yml?label=CodeQL&style=for-the-badge)](https://github.com/soenneker/soenneker.extensions.spans.readonly.objects/actions/workflows/codeql.yml)
 
 # ![](https://user-images.githubusercontent.com/4441470/224455560-91ed3ee7-f510-4041-a8d2-3fc093025112.png) Soenneker.Extensions.Spans.Readonly.Objects
-Helpful extension methods surrounding ReadOnlySpan of Object.
+Convert the runtime types in a `ReadOnlySpan<object>` into an array or caller-owned buffer.
 
 ## Installation
 
@@ -12,16 +12,24 @@ Helpful extension methods surrounding ReadOnlySpan of Object.
 dotnet add package Soenneker.Extensions.Spans.Readonly.Objects
 ```
 
-## Quick start
+## Allocate a type array
 
 ```csharp
 using Soenneker.Extensions.Spans.Readonly.Objects;
 
-// Given an existing ReadOnlySpan<object> named objects:
-var result = objects.ToTypes();
+ReadOnlySpan<object> arguments = [42, "status", DateTimeOffset.UtcNow];
+Type[] argumentTypes = arguments.ToTypes();
 ```
 
-## Common operations
+`ToTypes()` preserves input order and returns an empty array for an empty span. Each type is obtained with `GetType()`, so the result represents runtime types rather than declared types.
 
-- `ToTypes()` - Converts a span of objects to an array of their corresponding types.
-- `FillTypes()` - Fills the destination span with the corresponding types of the input objects (no allocations).
+## Fill an existing buffer
+
+```csharp
+Type[] reusableBuffer = new Type[8];
+arguments.FillTypes(reusableBuffer);
+```
+
+`FillTypes()` avoids allocating the destination collection. The destination must have at least as many elements as the input; additional elements are left unchanged.
+
+Both methods require every input element to be non-null because `null` has no runtime type. A null element causes `NullReferenceException`.
